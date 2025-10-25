@@ -9,7 +9,7 @@ const gdcmd = defineCommand({
     otherNames: ["dash", "geometrydash", "gdbrowser"],
     category: "Utilities",
     description: "Anything related to GDBrowser.",
-    version: "1.1.3",
+    version: "1.1.4",
     icon: "🛠️",
     author: "@lianecagara",
   },
@@ -45,6 +45,17 @@ const gdoptions = new SpectralCMDHome({ isHypen: false }, [
         const levels = await GDBrowserAPI.search(name, {
           page: page - 1,
         });
+        if (levels.length === 1) {
+          const targ = levels.at(0);
+          return execOther({
+            key: "view",
+            spectralArgsNew: [targ.id],
+            io: {
+              input,
+              output,
+            },
+          });
+        }
         const getLikeEmo = (likes: number) => (likes < 0 ? `👎` : `👍`);
         const mapped = [
           `🔎 **5 Results** (Page **${page}**)`,

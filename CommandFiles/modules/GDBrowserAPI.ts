@@ -1,13 +1,22 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 export namespace GDBrowserAPI {
-  const baseUrl = "https://gdbrowser.com/api";
+  export const baseUrl = "https://gdbrowser.com/api";
+  export const mainUrl = "https://gdbrowser.com";
 
   export async function level(
     levelId: string,
     params?: Record<string, any>
   ): Promise<LevelInfo> {
     return (await get("level", levelId, params)).data;
+  }
+
+  export async function getLevelIDFromPage(
+    url: string
+  ): Promise<string | null> {
+    const html = (await axios.get(url)).data as string;
+    const match = html.match(/<title>.*\((\d+)\)<\/title>/);
+    return match ? match[1] : null;
   }
 
   export interface LevelInfo {

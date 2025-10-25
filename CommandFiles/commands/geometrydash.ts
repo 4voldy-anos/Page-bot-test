@@ -9,7 +9,7 @@ const gdcmd = defineCommand({
     otherNames: ["dash", "geometrydash", "gdbrowser"],
     category: "Utilities",
     description: "Anything related to GDBrowser.",
-    version: "1.1.2",
+    version: "1.1.3",
     icon: "🛠️",
     author: "@lianecagara",
   },
@@ -167,6 +167,50 @@ const gdoptions = new SpectralCMDHome({ isHypen: false }, [
         };
         res.atReply(onRep);
         await output.reaction("✅");
+      } catch (error) {
+        return output.reply("No Results.");
+      }
+    },
+  },
+  {
+    key: "daily",
+    description: "View the daily level.",
+    async handler({ output, input }, { execOther }) {
+      try {
+        const id = await GDBrowserAPI.getLevelIDFromPage(
+          GDBrowserAPI.mainUrl + "/daily"
+        );
+        if (id === null) throw 69;
+        return execOther({
+          key: "view",
+          spectralArgsNew: [id],
+          io: {
+            input,
+            output,
+          },
+        });
+      } catch (error) {
+        return output.reply("No Results.");
+      }
+    },
+  },
+  {
+    key: "weekly",
+    description: "View the weekly level.",
+    async handler({ output, input }, { execOther }) {
+      try {
+        const id = await GDBrowserAPI.getLevelIDFromPage(
+          GDBrowserAPI.mainUrl + "/weekly"
+        );
+        if (id === null) throw 69;
+        return execOther({
+          key: "view",
+          spectralArgsNew: [id],
+          io: {
+            input,
+            output,
+          },
+        });
       } catch (error) {
         return output.reply("No Results.");
       }

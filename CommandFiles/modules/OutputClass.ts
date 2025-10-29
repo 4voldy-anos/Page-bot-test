@@ -99,6 +99,7 @@ export class OutputClass implements OutputProps {
     ctx.styler = styler;
     ctx.stylerDummy = styler;
     const output = new OutputClass(ctx);
+    output.NO_EVENT_MODE = true;
     return output;
   }
 
@@ -838,12 +839,12 @@ export class OutputClass implements OutputProps {
           r(toR);
         });
       }
-      const api = options.useWebMode ? wssAPI : this.api;
+      const api = optionsCopy.useWebMode ? globalThis.wssAPI : this.api;
       return new Promise((res) => {
-        if (options.contactID && input.isFacebook) {
+        if (optionsCopy.contactID && input.isFacebook) {
           this.api.shareContact(
             options.body,
-            options.contactID,
+            optionsCopy.contactID,
             optionsCopy.threadID || event.threadID
           );
           res(

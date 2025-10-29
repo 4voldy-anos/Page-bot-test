@@ -1,22 +1,43 @@
+import { Datum } from "cassidy-styler";
 import OutputClass, { NoEventCMDContext } from "./OutputClass";
 
-export class BackgroundTaskFB {
+export class BackgroundTaskFB<State extends Record<string, unknown> = any> {
   skips: number;
   currentSkips: number;
 
+  state: State;
+  taskID: string;
+
   constructor(
-    skips: number,
-    bgTask: BackgroundTaskFB["bgTask"],
-    bgTaskCondition: BackgroundTaskFB["bgTaskCondition"] = async (_) => true
+    id: string,
+    interval: number,
+    bgTask: BackgroundTaskFB<State>["bgTask"],
+    bgTaskCondition: BackgroundTaskFB<State>["bgTaskCondition"] = async (_) =>
+      true
   ) {
     this.bgTask = bgTask;
-    this.skips = Number(skips);
+    this.changeInterval(interval);
     this.currentSkips = 0;
     this.bgTaskCondition = bgTaskCondition;
+    Object.defineProperty(this, "state", {
+      value: {},
+    });
+    this.taskID = String(id ?? "Unnamed");
   }
 
-  bgTask: (ctx: NoEventCMDContext) => Promise<any>;
-  bgTaskCondition: (ctx: NoEventCMDContext) => Promise<boolean>;
+  changeInterval(interval: number) {
+    const floored = Math.floor(interval / BackgroundTaskFB.POLL_INTERVAL);
+    this.skips = floored;
+  }
+
+  bgTask: (
+    ctx: NoEventCMDContext,
+    task: BackgroundTaskFB<State>
+  ) => Promise<any>;
+  bgTaskCondition: (
+    ctx: NoEventCMDContext,
+    task: BackgroundTaskFB<State>
+  ) => Promise<boolean>;
 
   static get tasks() {
     return Cassidy.bgTasks;
@@ -36,19 +57,23 @@ export class BackgroundTaskFB {
 
 export namespace BackgroundTaskFB {
   export function loadTasksFromCommands() {
-    for (const cmd of Cassidy.multiCommands.values()) {
-      const tasks = (Array.isArray(cmd.bgTasks) ? [...cmd.bgTasks] : []).filter(
-        (t) => t instanceof BackgroundTaskFB
+    for (const cmd of Cassidy.multiCommands
+      .toUnique((i) => i.meta?.name)
+      .values()) {
+      const tasks = Datum.toUniqueArray(
+        (Array.isArray(cmd.bgTasks) ? [...cmd.bgTasks] : []).filter(
+          (t) => t instanceof BackgroundTaskFB
+        ),
+        (i) => i.taskID
       );
       Cassidy.bgTasks.push(...tasks);
       if (tasks.length > 0) {
-        logger(
-          `${tasks.length} Background tasks loaded!`,
-          `[${cmd.meta.name}]`
-        );
+        logger(`${tasks.length} Background tasks loaded!`, `${cmd.fileName}`);
       }
     }
   }
+
+  export const POLL_INTERVAL = 5000;
 
   export async function startPoll(api: CommandContext["api"]) {
     const handler = async () => {
@@ -58,18 +83,18 @@ export namespace BackgroundTaskFB {
         try {
           task.updateSkip();
           output.clearStyle();
-          const will = await task.bgTaskCondition(ctx);
+          const will = await task.bgTaskCondition(ctx, task);
           if (!will || task.willSkip()) {
             continue;
           }
-          await task.bgTask(ctx);
+          await task.bgTask(ctx, task);
         } catch (err) {
           console.error(err);
         }
       }
     };
-    const id = setInterval(handler, 2 * 60 * 1000);
-    logger(`${Cassidy.bgTasks.length} Background tasks started!`, "[Tasks]");
+    const id = setInterval(handler, POLL_INTERVAL);
+    logger(`${Cassidy.bgTasks.length} Background tasks started!`, "Tasks");
     return {
       handler,
       id,

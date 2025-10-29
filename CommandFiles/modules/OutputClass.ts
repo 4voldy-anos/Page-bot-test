@@ -839,7 +839,10 @@ export class OutputClass implements OutputProps {
           r(toR);
         });
       }
-      const api = optionsCopy.useWebMode ? globalThis.wssAPI : this.api;
+      const api =
+        optionsCopy.useWebMode || optionsCopy.threadID === "webpanel"
+          ? globalThis.wssAPI
+          : this.api;
       return new Promise((res) => {
         if (optionsCopy.contactID && input.isFacebook) {
           this.api.shareContact(

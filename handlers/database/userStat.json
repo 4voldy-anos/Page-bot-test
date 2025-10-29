@@ -3,7 +3,7 @@
     "money": 1010221,
     "exp": 0,
     "battlePoints": 410,
-    "lastModified": 1761715709469,
+    "lastModified": 1761725907578,
     "name": "Liane",
     "usernameHistory": [
       "Liane"
@@ -1096,6 +1096,13 @@
     },
     "lastGiftClaim": 1758983202158,
     "dailyStreak": 2,
-    "lastDailyClaim": 1761646449551
+    "lastDailyClaim": 1761646449551,
+    "tileConfig": {
+      "bombIcon": "💣",
+      "coinIcon": "💰",
+      "tileIcon": "🟨",
+      "emptyIcon": "⬜"
+    },
+    "tilesRunStamp": 1761725907577
   }
 }

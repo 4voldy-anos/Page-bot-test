@@ -447,13 +447,25 @@ export class OutputClass implements OutputProps {
    * A string to prepend to messages.
    * @deprecated
    */
-  prepend: string;
+  get prepend() {
+    return this.#prepend;
+  }
 
   /**
    * A string to append to messages.
    * @deprecated
    */
-  append: string;
+  get append() {
+    return this.#append;
+  }
+
+  set prepend(s) {
+    this.#prepend = s;
+  }
+
+  set append(s) {
+    this.#append = s;
+  }
 
   /**
    * Sends a styled reply with the specified form, style, and optional thread.

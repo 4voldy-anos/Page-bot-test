@@ -531,6 +531,8 @@ export class CanvCass {
       baseline = "middle",
       vAlign = "middle",
       size,
+      yMargin = 0,
+      breakMaxWidth = Infinity,
     } = options;
 
     if (vAlign === "top") {
@@ -547,14 +549,27 @@ export class CanvCass {
     ctx.textAlign = align;
     ctx.textBaseline = baseline;
 
-    if (stroke) {
-      ctx.strokeStyle = stroke;
-      ctx.lineWidth = strokeWidth;
-      ctx.strokeText(text, x, y);
-    }
-    if (fill) {
-      ctx.fillStyle = fill;
-      ctx.fillText(text, x, y);
+    const lines = this.splitBreak(
+      {
+        ...options,
+        text,
+      },
+      breakMaxWidth
+    );
+
+    let tx = x;
+    let ty = y;
+    for (const line of lines) {
+      if (stroke) {
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = strokeWidth;
+        ctx.strokeText(line, tx, ty);
+      }
+      if (fill) {
+        ctx.fillStyle = fill;
+        ctx.fillText(line, tx, ty);
+      }
+      ty += size + yMargin;
     }
 
     ctx.restore();
@@ -594,6 +609,37 @@ export class CanvCass {
     ctx.restore();
 
     return result;
+  }
+
+  splitBreak(style: CanvCass.MeasureTextParam, maxW: number) {
+    let accuW = 0;
+    const text = style.text;
+    let words: string[] = [];
+    let lines: string[] = [];
+    const split = text.split(" ");
+    let ii = 0;
+    for (const word of split) {
+      const w = this.measureText({
+        ...style,
+        text: word + " ",
+      }).width;
+      if (w > maxW) {
+        // continue;
+      }
+      accuW += w;
+      if (accuW >= maxW) {
+        lines.push(words.join(" "));
+        accuW = 0;
+        words = [word];
+      } else {
+        words.push(word);
+      }
+      if (ii + 1 >= split.length) {
+        lines.push(words.join(" "));
+      }
+      ii++;
+    }
+    return lines;
   }
 
   tiltedGradient(
@@ -751,6 +797,8 @@ export namespace CanvCass {
     text: string;
     x: number;
     y: number;
+    yMargin?: number;
+    breakMaxWidth?: number;
     cssFont?: string;
     fontType?: "cbold" | "cnormal" | "css";
     size?: number;

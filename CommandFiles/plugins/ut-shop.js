@@ -83,7 +83,12 @@ export function generateTrash() {
     saturation: (Math.floor(Math.random() * 27) + 5) * 60 * 1000,
     key: `${type}Can`,
     prob: (70 + Math.floor(Math.random() * 100) - 70) / 100,
-    group: ["generic", "unlucky", ...(type === "anypet" ? [] : ["curse"])],
+    group: [
+      "generic",
+      "unlucky",
+      "foodpack",
+      ...(type === "anypet" ? [] : ["curse"]),
+    ],
     isTrash: true,
   };
 }
@@ -244,7 +249,7 @@ export const treasures = [
     sellPrice: 500,
     healParty: true,
     prob: 0.2,
-    group: ["generic", "banking"],
+    group: ["generic", "banking", "foodpack"],
   },
   {
     name: "Lotto Ticket",
@@ -268,7 +273,7 @@ export const treasures = [
     atk: 5,
     def: 1,
     prob: 0.6,
-    group: ["generic", "tiles", "unlucky", "curse"],
+    group: ["generic", "tiles", "unlucky", "curse", "weaponpack"],
   },
   {
     name: "Dog Tag",
@@ -312,7 +317,7 @@ export const treasures = [
     flavorText:
       "War has never ceased in the Land of Dawn: the Endless War, the unification of the Moniyan Empire, the Conflicts in the North... The artifact has witness every struggle for survival for centuries.",
     key: "endlessBattle",
-    group: ["generic", "legends"],
+    group: ["generic", "legends", "weaponpack"],
     prob: 0.1,
     type: "weapon",
     atk: 65,
@@ -331,7 +336,7 @@ export const treasures = [
     cannotBox: true,
     cannotSend: true,
     prob: 0.2,
-    group: ["generic", "petfoods", "unlucky", "bad", "curse"],
+    group: ["generic", "petfoods", "unlucky", "bad", "curse", "foodpack"],
   },
   {
     name: "Good Apple",
@@ -342,7 +347,7 @@ export const treasures = [
     saturation: 2000000,
     sellPrice: 300,
     prob: 0.2,
-    group: ["generic", "petfoods", "counter"],
+    group: ["generic", "petfoods", "counter", "foodpack"],
   },
 
   {
@@ -356,7 +361,7 @@ export const treasures = [
     atk: 20,
     sellPrice: 3000,
     prob: 0.1,
-    group: ["generic", "gears"],
+    group: ["generic", "gears", "weaponpack"],
   },
   {
     name: "Assassin's Pick",
@@ -371,7 +376,7 @@ export const treasures = [
     sellPrice: 10000,
     cannotToss: false,
     prob: 0.1,
-    group: ["generic", "armor"],
+    group: ["generic", "armor", "weaponpack"],
   },
   {
     name: "Phoenix Ember 𝔼𝕏 ✦",
@@ -384,7 +389,7 @@ export const treasures = [
     sellPrice: 500,
     prob: 0.3,
     picky: true,
-    group: ["generic", "petfoods", "phoenixhelp"],
+    group: ["generic", "petfoods", "phoenixhelp", "foodpack"],
   },
   {
     name: "Majestic Meals 𝔼𝕏 ✦",
@@ -396,7 +401,7 @@ export const treasures = [
     saturation: 120 * 60 * 1000,
     prob: 0.3,
     picky: true,
-    group: ["generic", "petfoods", "tigerhelp"],
+    group: ["generic", "petfoods", "tigerhelp", "foodpack"],
   },
 
   {
@@ -573,6 +578,30 @@ export async function use(obj) {
     if (type === "randomGrouped") {
       const items = treasures.filter((i) => i?.group?.includes(args[0]));
       return randomWithProb(items);
+    }
+    if (type === "randomGroupedMultiple") {
+      const items = args
+        .map((a) => treasures.filter((i) => i?.group?.includes(a)))
+        .flat();
+      return randomWithProb(items);
+    }
+    if (type === "randomGroupedBiasFirst") {
+      const result = [];
+      let divisor = 1;
+      for (const arg of args) {
+        const items = treasures.filter((i) => i?.group?.includes(arg));
+        result.push(
+          ...items.map((i) => {
+            return {
+              ...i,
+              prob: (i.prob || 1) / divisor,
+            };
+          })
+        );
+        divisor++;
+      }
+
+      return randomWithProb(result);
     }
 
     if (type === "rare") {

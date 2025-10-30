@@ -3,7 +3,7 @@
     "money": 0,
     "exp": 0,
     "battlePoints": 0,
-    "lastModified": 1755775001348,
+    "lastModified": 1761816633138,
     "analytics": [
       [
         "gsCarrot",
@@ -20,7 +20,34 @@
       [
         "gsBlueberry",
         2
+      ],
+      [
+        "kabayo",
+        2
       ]
+    ]
+  },
+  "COMSHOP": {
+    "money": 0,
+    "exp": 0,
+    "battlePoints": 0,
+    "lastModified": 1761817258907,
+    "comshop": [
+      {
+        "name": "Water Breathing Potion",
+        "icon": "🧪🫧",
+        "key": "waterPotion",
+        "sellPrice": 1000000,
+        "shopPrice": 10000000,
+        "flavorText": "The potion allows your pet to live underwater forever and leave you.",
+        "type": "potion",
+        "uuid": "1761817226953_203fcfe2-2956-4031-8d80-aea8f581eafc",
+        "submissionDate": 1761817226953,
+        "index": 0,
+        "cannotToss": false,
+        "approved": true,
+        "authorID": "web:bmVha3l1dGk"
+      }
     ]
   }
 }

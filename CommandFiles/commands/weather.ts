@@ -90,7 +90,7 @@ export const meta: CommandMeta = {
   supported: "^4.0.0",
   otherNames: ["wx"],
   usage: "{prefix}{name} [search|current|forecast] [location]",
-  category: "Utility",
+  category: "Media",
   role: 0,
   noPrefix: false,
   waitingTime: 2,

@@ -783,6 +783,45 @@ export default class UserStatsManager {
     );
   }
 
+  async getAvatarURLNew(uid: string, size = 720) {
+    try {
+      const res = await axios.get(
+        `https://graph.facebook.com/${uid}/picture?width=${size}&height=${size}&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`
+      );
+      return {
+        res,
+        url: res.request.res.responseUrl as string,
+      };
+    } catch (error) {
+      return null;
+    }
+  }
+  async ensureAvatarURL(uid: string, forceNew = false) {
+    try {
+      const user = await this.getCache(uid);
+      if (!user.avatarURL || forceNew) {
+        try {
+          const { url } = await this.getAvatarURLNew(uid);
+          await this.setItem(uid, {
+            avatarURL: url,
+          });
+          return url;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async getAvatarURL(uid: string) {
+    await this.ensureAvatarURL(uid);
+    return (await this.getCache(uid)).avatarURL;
+  }
+
   /**
    * Retrieves all cached user data, fetching any missing entries from storage.
    * Ensures consistency by processing all entries similarly to getAll.

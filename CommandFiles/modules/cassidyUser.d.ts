@@ -150,6 +150,7 @@ export type CollectibleItem = {
 };
 
 type UserData = {
+  avatarURL?: string;
   analytics?: [string, number][];
   nameMeta?:
     | undefined

@@ -245,9 +245,10 @@ export function logger(text, title = "log", func = console.log) {
 }
 
 function loginHandler(obj) {
+  const loginF = Cassidy.config.FCA_Destructure ? login.login : login;
   return new Promise(async (resolve, reject) => {
     try {
-      login(obj, (err, api) => {
+      loginF(obj, (err, api) => {
         if (err) {
           reject(err);
           return;

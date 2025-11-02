@@ -39,6 +39,7 @@
     "interval": 3600000,
     "note": "This restarts the entire process."
   },
+  "FCA_Destructure": false,
   "FCA": {
     "path": "./ws3-fca/index",
     "selfListen": false,

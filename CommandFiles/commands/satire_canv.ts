@@ -5,8 +5,8 @@ export const meta: CommandMeta = {
   name: "snews",
   description: "Generate a satire news image via CanvCass",
   author: "Liane Cagara",
-  version: "1.0.1",
-  usage: "{prefix}{name} <headline>",
+  version: "1.0.2",
+  usage: "{prefix}{name} <headline> | [url]",
   category: "Media",
   permissions: [0],
   noPrefix: false,
@@ -50,7 +50,7 @@ export async function entry({
   const pfpURL = await usersDB.getAvatarURL(uid);
 
   let [argsText, bg] = input.splitArgs("|");
-  bg ||= input.attachmentUrls[0];
+  bg ||= input.replier.attachmentUrls[0];
   bg ||= pfpURL;
 
   if (!bg) {
@@ -77,7 +77,6 @@ export async function entry({
 
     const pfp = await loadImage(bg);
     await canv.drawImage(pfp, canv.left, canv.top, {
-      width: canv.width,
       height: canv.height,
     });
 

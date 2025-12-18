@@ -42,7 +42,7 @@ export const meta: CommandMeta = {
 };
 
 export const style: CommandStyle = {
-  title: "Astral • Nijix Anime Image Generator ✨",
+  title: "Christus • Nijix Anime Image Generator ✨",
   titleFont: "bold",
   contentFont: "fancy",
 };

@@ -37,7 +37,7 @@ export const meta: CommandMeta = {
 };
 
 export const style: CommandStyle = {
-  title: "Astral • Music Search 🎧",
+  title: "Christus • Music Search 🎧",
   titleFont: "bold",
   contentFont: "fancy",
 };
@@ -69,8 +69,8 @@ ${UNISpectra.charm} Top Results for: "${query}"
 ${list}
 ${UNISpectra.standardLine}
 ${UNISpectra.charm} Reply with a number (1–6) to download
-${UNISpectra.charm} CassidyAstral-Midnight 🌃 ${UNISpectra.charm}
-[ Transmission from Astral Command ]`;
+${UNISpectra.charm} Christus-Midnight 🌃 ${UNISpectra.charm}
+[ Transmission from Christus Command ]`;
 }
 
 function formatSongInfo(data: any, video: YTVideo) {
@@ -80,7 +80,7 @@ function formatSongInfo(data: any, video: YTVideo) {
  • 🎧 Format: ${data.format}
  • 🔗 YouTube: ${video.url}
 ${UNISpectra.standardLine}
-${UNISpectra.charm} CassidyAstral-Midnight 🌃`;
+${UNISpectra.charm} Christus-Midnight 🌃`;
 }
 
 export const entry = defineEntry(

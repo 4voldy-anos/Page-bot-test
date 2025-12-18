@@ -35,7 +35,7 @@ export const meta: CommandMeta = {
 };
 
 export const style: CommandStyle = {
-  title: "Astral • YouTube Downloader 🌠",
+  title: "Christus • YouTube Downloader 🏂",
   titleFont: "bold",
   contentFont: "fancy",
 };
@@ -79,7 +79,7 @@ ${UNISpectra.charm} Select a media
 ${list}
 ${UNISpectra.standardLine}
 ${UNISpectra.charm} Reply with a number (1–6)
-${UNISpectra.charm} CassidyAstral 🌌`;
+${UNISpectra.charm} ChristusBot 🏂`;
 }
 
 async function downloadMedia(
@@ -209,3 +209,4 @@ export async function reply({
     output.reply(t("downloadFail"));
   }
     }
+

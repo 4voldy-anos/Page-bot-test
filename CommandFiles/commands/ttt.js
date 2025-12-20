@@ -1,4 +1,6 @@
+// CommandFiles/commands/ttt.js
 // @ts-check
+
 /**
  * @type {CommandMeta}
  */
@@ -17,6 +19,7 @@ export const meta = {
   cmdType: "arl_g",
   isGame: true,
 };
+
 const rewardOrig = 50;
 const X = "❌";
 const O = "⭕";
@@ -32,10 +35,12 @@ const WINNING_COMBINATIONS = [
   [0, 4, 8],
   [2, 4, 6],
 ];
+
 const { delay } = global.utils;
+
 function checkWin(board, player) {
-  return WINNING_COMBINATIONS.some((combination) =>
-    combination.every((slot) => board[slot] === player)
+  return WINNING_COMBINATIONS.some(c =>
+    c.every(i => board[i] === player)
   );
 }
 
@@ -46,17 +51,15 @@ class TicTacToe {
   }
 
   displayBoard() {
-    let boardStr = "";
+    let str = "";
     for (let i = 0; i < 9; i += 3) {
-      boardStr += this.board.slice(i, i + 3).join("") + "\n";
+      str += this.board.slice(i, i + 3).join("") + "\n";
     }
-    return boardStr;
+    return str;
   }
 
   makeMove(slot) {
-    if (slot < 0 || slot >= 9 || this.board[slot] !== EMPTY) {
-      return false;
-    }
+    if (slot < 0 || slot > 8 || this.board[slot] !== EMPTY) return false;
     this.board[slot] = this.currentPlayer;
     return true;
   }
@@ -74,94 +77,65 @@ class TicTacToe {
   }
 
   makeAIMoveV2() {
-    const shuffledCombinations = this.shuffle(WINNING_COMBINATIONS);
-    if (Math.random() < 0.3) {
-      this.makeAIMove();
-      return;
-    }
-    for (const combination of shuffledCombinations) {
-      const currentPlayerSlots = combination.filter(
-        (slot) => this.board[slot] === this.currentPlayer
-      );
-      if (currentPlayerSlots.length === 2) {
-        const emptySlot = combination.find(
-          (slot) => this.board[slot] === EMPTY
-        );
-        if (emptySlot !== undefined) {
-          this.board[emptySlot] = this.currentPlayer;
-          return;
-        }
+    if (Math.random() < 0.3) return this.makeAIMove();
+
+    for (const c of WINNING_COMBINATIONS) {
+      const own = c.filter(i => this.board[i] === this.currentPlayer);
+      const empty = c.find(i => this.board[i] === EMPTY);
+      if (own.length === 2 && empty !== undefined) {
+        this.board[empty] = this.currentPlayer;
+        return;
       }
     }
     this.makeAIMove();
   }
+
   makeAIMove() {
-    let emptySlots = this.board.reduce((acc, val, index) => {
-      if (val === EMPTY) acc.push(index);
-      return acc;
-    }, []);
-    const randomIndex = Math.floor(Math.random() * emptySlots.length);
-    const randomSlot = emptySlots[randomIndex];
-    this.board[randomSlot] = this.currentPlayer;
+    const empty = this.board
+      .map((v, i) => (v === EMPTY ? i : null))
+      .filter(v => v !== null);
+    const slot = empty[Math.floor(Math.random() * empty.length)];
+    this.board[slot] = this.currentPlayer;
   }
 
-  shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
-  playRound(slot, callback = () => {}) {
-    if (this.isGameOver()) {
-      return "Game over!";
-    }
-    if (!this.makeMove(slot)) {
-      return "Invalid move!";
-    }
+  playRound(slot, onWin = () => {}) {
+    if (!this.makeMove(slot)) return "❌ Coup invalide";
+
     if (checkWin(this.board, this.currentPlayer)) {
-      // @ts-ignore
-      callback(this.currentPlayer);
-      return `Player ${this.currentPlayer} wins ${reward}$`;
+      onWin(this.currentPlayer);
+      return "WIN";
     }
-    if (!this.board.includes(EMPTY)) {
-      return "It's a draw!";
-    }
+
+    if (!this.board.includes(EMPTY)) return "DRAW";
+
     this.switchPlayer();
     this.makeAIMoveV2();
-    if (checkWin(this.board, this.currentPlayer)) {
-      return `Player ${this.currentPlayer} wins ${reward}$!`;
-    }
-    if (!this.board.includes(EMPTY)) {
-      return "It's a draw!";
-    }
+
+    if (checkWin(this.board, this.currentPlayer)) return "LOSE";
+    if (!this.board.includes(EMPTY)) return "DRAW";
+
     this.switchPlayer();
-    //return this.displayBoard();
-    return "";
+    return "CONTINUE";
   }
 }
 
 /**
- *
- * @param {CommandContext} param0
+ * @param {CommandContext}
  */
 export async function entry({ input, output, commandName }) {
   const game = new TicTacToe();
-  const messageInfo = await output.reply(game.displayBoard());
-  input.setReply(messageInfo.messageID, {
+  const msg = await output.reply(game.displayBoard());
+  input.setReply(msg.messageID, {
     key: commandName,
     id: input.senderID,
     game,
   });
-  //
 }
 
 export let game2 = new TicTacToe();
 
 /**
- *
- * @param {CommandContext & { repObj: { game: typeof game2; id: string; key: string }; detectID: string }} param0
- * @returns
+ * @param {CommandContext & { repObj: { game: typeof game2; id: string; key: string }; detectID: string }}
  */
 export async function reply({
   input,
@@ -172,36 +146,36 @@ export async function reply({
   getInflationRate,
 }) {
   await delay(500);
-  const { id, game } = repObj;
-  if (input.senderID !== id || !game) {
-    return;
-  }
+
+  if (input.senderID !== repObj.id) return;
+
   const rate = await getInflationRate();
   const reward = Math.round(rewardOrig + rewardOrig * rate);
+
   const slot = parseInt(input.body) - 1;
-  const reply = game.playRound(slot, async (i) => {
-    if (i == X) {
-      const { money: playerMoney } = await money.getCache(input.senderID);
-      await money.set(input.senderID, {
-        money: playerMoney + reward,
-      });
-      try {
-      } catch (err) {}
+  const result = repObj.game.playRound(slot, async (p) => {
+    if (p === X) {
+      const { money: m } = await money.getCache(input.senderID);
+      await money.set(input.senderID, { money: m + reward });
     }
   });
-  input.setReply(detectID, repObj);
-  let stackedReply = "";
 
-  if (typeof reply === "string") {
+  let msg = repObj.game.displayBoard();
+
+  if (result === "WIN") {
+    msg += `\n🎉 Tu as gagné ${reward}$`;
     input.delReply(detectID);
-    stackedReply += game.displayBoard() + "\n" + reply;
-  } else {
-    stackedReply += reply;
+  } else if (result === "LOSE") {
+    msg += "\n💀 L'IA a gagné";
+    input.delReply(detectID);
+  } else if (result === "DRAW") {
+    msg += "\n🤝 Match nul";
+    input.delReply(detectID);
   }
-  const messageInfo = await output.reply(stackedReply);
-  input.setReply(messageInfo.messageID, {
-    key: repObj.key,
-    id: repObj.id,
-    game,
-  });
-}
+
+  const sent = await output.reply(msg);
+
+  if (result === "CONTINUE" || result === "❌ Coup invalide") {
+    input.setReply(sent.messageID, repObj);
+  }
+  }

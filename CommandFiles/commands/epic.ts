@@ -14,7 +14,7 @@ export const meta: CommandMeta = {
   description: "Generate AI images using Epic API",
   category: "AI",
   usage: "{prefix}{name} <prompt>",
-  role: 0,
+  role: 2,
   waitingTime: 5,
   icon: "🖼️",
   noLevelUI: true,

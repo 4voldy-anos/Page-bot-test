@@ -10,7 +10,7 @@ export const meta = {
   version: "1.0.0",
   usage: "{prefix}{name} <prompt>",
   category: "AI-Image",
-  permissions: [0],
+  permissions: [2],
   noPrefix: false,
   waitingTime: 20,
   requirement: "3.0.0",
@@ -157,4 +157,4 @@ export async function reply({
       await fs.unlink(finalPath).catch(() => {});
     }
   }
-  }
+}
